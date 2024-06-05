@@ -12,7 +12,6 @@ const deviceSchema = new mongoose.Schema({
   timestamp: { type: Date, default: Date.now }
 });
 
-const Device = mongoose.model('Device', deviceSchema);
 
 const app = express();
 app.use(bodyParser.json());
@@ -20,6 +19,7 @@ app.use(bodyParser.json());
 app.post('/devices', (req, res) => {
   const { topic, message } = req.body;
   const data = JSON.parse(message);
+  const Device = mongoose.model('Device', deviceSchema, topic);
 
   const device = new Device({
     deviceName: data.deviceName,
