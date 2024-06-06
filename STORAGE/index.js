@@ -1,6 +1,9 @@
 const express = require('express');
+const http = require('http');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
+const { Server } = require('socket.io');
+const cors = require('cors');
 
 mongoose.connect('mongodb://localhost:27017/eversun', {});
 
@@ -14,7 +17,23 @@ const deviceSchema = new mongoose.Schema({
 
 
 const app = express();
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: '*',
+  }
+});
+
+app.use(cors());
 app.use(bodyParser.json());
+
+
+io.on('connection', (socket) => {
+  console.log('A user connected');
+  socket.on('disconnect', () => {
+    console.log('A user disconnected');
+  });
+});
 
 app.post('/devices', (req, res) => {
   const { topic, message } = req.body;
@@ -29,10 +48,13 @@ app.post('/devices', (req, res) => {
   });
 
   device.save()
-    .then(() => res.status(201).send('Data stored successfully'))
+    .then(() => {
+      res.status(201).send('Data stored successfully');
+      io.emit('message', device);
+    })
     .catch(error => res.status(500).send('Error storing data:', error));
 });
 
-app.listen(4000, () => {
+server.listen(4000, () => {
   console.log('Storage service running on port 4000');
 });
