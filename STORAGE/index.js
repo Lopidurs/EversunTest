@@ -8,12 +8,14 @@ const cors = require('cors');
 mongoose.connect('mongodb://localhost:27017/eversun', {});
 
 const deviceSchema = new mongoose.Schema({
+  topic: String,
   deviceName: String,
   currentPower: String,
   totalPowerConsumption: String,
   state: String,
   timestamp: { type: Date, default: Date.now }
 });
+const Device = mongoose.model('Device', deviceSchema, "devices");
 
 
 const app = express();
@@ -30,6 +32,22 @@ app.use(bodyParser.json());
 
 io.on('connection', (socket) => {
   console.log('A user connected');
+  Device.findOne({ deviceName: 'smartPlug1' }).then((data) => {
+    if (!data) {
+      console.log('No device found');
+    } else {
+      const device = new Device({
+        topic: data.topic,
+        deviceName: data.deviceName,
+        currentPower: data.currentPower,
+        totalPowerConsumption: data.totalPowerConsumption,
+        state: data.state
+      });
+      io.emit('message', device);
+    }
+  }).catch((err) => console.log(err))
+
+
   socket.on('disconnect', () => {
     console.log('A user disconnected');
   });
@@ -38,9 +56,9 @@ io.on('connection', (socket) => {
 app.post('/devices', (req, res) => {
   const { topic, message } = req.body;
   const data = JSON.parse(message);
-  const Device = mongoose.model('Device', deviceSchema, topic);
 
   const device = new Device({
+    topic: topic,
     deviceName: data.deviceName,
     currentPower: data.currentPower,
     totalPowerConsumption: data.totalPowerConsumption,
