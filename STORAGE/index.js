@@ -32,7 +32,7 @@ app.use(bodyParser.json());
 
 io.on('connection', (socket) => {
   console.log('A user connected');
-  Device.findOne({ deviceName: 'smartPlug1' }).then((data) => {
+  Device.findOne({ deviceName: 'smartPlug1' }).sort({timestamp: -1 }).then((data) => {
     if (!data) {
       console.log('No device found');
     } else {
