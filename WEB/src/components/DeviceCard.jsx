@@ -1,60 +1,88 @@
-import { useState, useEffect } from 'react';
-import io from 'socket.io-client';
-import Card from '@mui/material/Card';
-import CardContent from '@mui/material/CardContent';
-import Typography from '@mui/material/Typography';
+/* eslint-disable react/prop-types */
+import { useState, useEffect } from "react";
+import { Grid, Typography, Switch, CardContent, Card } from "@mui/material";
+import axios from "axios";
 
-const socket = io('ws://localhost:4000');
-
-export default function BasicCard() {
-  const [deviceData, setDeviceData] = useState({
-    topic: ' - ',
-    deviceName: ' - ',
-    currentPower: ' - ',
-    totalPowerConsumption: ' - ',
-    state: 'NO CONNECTION'
-  });
+export default function DeviceCard(props) {
+  const [deviceData, setDeviceData] = useState({ });
 
   useEffect(() => {
-    socket.on('connect', () => {
-      console.log('Connected to WebSocket server');
+    console.log(props)
+    setDeviceData({
+      topic: props.topic || " - ",
+      deviceName: props.deviceName || " - ",
+      currentPower: props.currentPower || " - ",
+      totalPowerConsumption: props.totalPowerConsumption || " - ",
+      state: props.state || "NO CONNECTION",
     });
+    setChecked(props.state === "ON");
+  }, [props]);
 
-    socket.on('message', (data) => {
-      console.log('Received new data:', data);
-      setDeviceData({
-        topic: data.topic,
-        deviceName: data.deviceName,
-        currentPower: data.currentPower,
-        totalPowerConsumption: data.totalPowerConsumption,
-        state: data.state
-      });
-    });
+  const [checked, setChecked] = useState(true);
 
-    return () => {
-      socket.off('new-data');
-    };
-  }, []);
+  const handleChange = (event) => {
+    let newStatus;
+    setChecked(event.target.checked);
+    event.target.checked
+      ? (newStatus = '{"state" : "ON"}')
+      : (newStatus = '{"state" : "OFF"}');
+      axios.post(
+        `http://localhost:3000/devices${props.topic}/set`,
+        JSON.parse(newStatus)
+      );
+  };
 
   return (
-    <Card sx={{ minWidth: 275 }}>
+    <Card sx={{ width: 500, margin: 2 }}>
       <CardContent>
-        <Typography variant="body1">
-            Topic: {deviceData.topic}
-        </Typography>
-        <Typography variant="body1">
-            Device name: {deviceData.deviceName}
-        </Typography>
-        <Typography variant="body1">
-            Current Power: {deviceData.currentPower}
-        </Typography>
-        <Typography variant="body1">
-            Total Power Consumption: {deviceData.totalPowerConsumption}
-        </Typography>
-        <Typography variant="body1">
-            State: {deviceData.state}
-        </Typography>
-        
+        <Grid container alignItems="center">
+          <Grid item xs={10}>
+            <Typography
+              variant="h6"
+              component="div"
+              gutterBottom={false}
+              align="left"
+            >
+              <strong>Device Name:</strong> {deviceData.deviceName}
+            </Typography>
+            <Typography
+              variant="h6"
+              component="div"
+              gutterBottom={false}
+              align="left"
+            >
+              <strong>Topic:</strong> {deviceData.topic}
+            </Typography>
+            <Typography
+              variant="h6"
+              component="div"
+              gutterBottom={false}
+              align="left"
+            >
+              <strong>Current Power:</strong> {deviceData.currentPower}
+            </Typography>
+            <Typography
+              variant="h6"
+              component="div"
+              gutterBottom={false}
+              align="left"
+            >
+              <strong>Total Power Consumption:</strong>{" "}
+              {deviceData.totalPowerConsumption}
+            </Typography>
+            <Typography
+              variant="h6"
+              component="div"
+              gutterBottom={false}
+              align="left"
+            >
+              <strong>State:</strong> {deviceData.state}
+            </Typography>
+          </Grid>
+          <Grid item xs={2}>
+            <Switch checked={checked} onChange={handleChange} />
+          </Grid>
+        </Grid>
       </CardContent>
     </Card>
   );
