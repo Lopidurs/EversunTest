@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   storage:
-    build: ./storage
+    build: ./STORAGE
     ports:
       - "4000:4000"
     depends_on:
@@ -11,14 +11,14 @@ services:
       - MONGO_URL=mongodb://mongo:27017/eversun
 
   api:
-    build: ./api
+    build: ./API
     ports:
       - "3000:3000"
     depends_on:
       - mqtt
 
   mqtt:
-    build: ./mqtt
+    build: ./MQTT
     depends_on:
       - storage
 
@@ -30,9 +30,9 @@ services:
       - mongo-data:/data/db
 
   frontend:
-    build: ./frontend
+    build: ./WEB
     ports:
-      - "80:80"
+      - "8080:80"
 
 volumes:
   mongo-data:
