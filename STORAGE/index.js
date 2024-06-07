@@ -35,12 +35,12 @@ io.on('connection', (socket) => {
 
   Device.aggregate([
     {
-      $sort: { timestamp: -1 } 
+      $sort: { timestamp: -1 }
     },
     {
       $group: {
         _id: "$topic",
-        doc: { $first: "$$ROOT" } 
+        doc: { $first: "$$ROOT" }
       }
     }
   ]).then((result) => {
@@ -67,17 +67,28 @@ io.on('connection', (socket) => {
   });
 });
 
-app.post('/devices', (req, res) => {
-  const { topic, message } = req.body;
+app.post('/devices', async (req, res) => {
+  let { topic, message } = req.body;
   const data = JSON.parse(message);
+  let deviceToUpdate;
+
+  if (topic.split('/').pop() === "set") {
+    topic = topic.slice(0, -4);
+
+    deviceToUpdate = await Device.findOne({ topic: topic }).sort({ timestamp: -1 })
+    if (!deviceToUpdate) {
+      return res.status(404).send('Device not found');
+    }
+  }
 
   const device = new Device({
     topic: topic,
-    deviceName: data.deviceName,
-    currentPower: data.currentPower,
-    totalPowerConsumption: data.totalPowerConsumption,
-    state: data.state
-  });
+    deviceName: data.deviceName === undefined ? deviceToUpdate.deviceName : data.deviceName ,
+    currentPower: data.currentPower === undefined ? deviceToUpdate.currentPower : data.currentPower,
+    totalPowerConsumption: data.totalPowerConsumption === undefined ? deviceToUpdate.totalPowerConsumption : data.totalPowerConsumption,
+    state: data.state === undefined ? deviceToUpdate.state : data.state,
+})
+
 
   device.save()
     .then(() => {
@@ -86,6 +97,8 @@ app.post('/devices', (req, res) => {
     })
     .catch(error => res.status(500).send('Error storing data:', error));
 });
+
+
 
 server.listen(4000, () => {
   console.log('Storage service running on port 4000');

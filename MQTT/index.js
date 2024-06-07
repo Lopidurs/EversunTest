@@ -16,7 +16,7 @@ const client = mqtt.connect(connectUrl, {
   reconnectPeriod: 1000,
 })
 
-const topics = ['/EversunTest/smartPlug1', '/EversunTest/smartPlug2', '/EversunTest/smartPlug3']
+const topics = ['/EversunTest/smartPlug1', '/EversunTest/smartPlug2', '/EversunTest/smartPlug3','/EversunTest/smartPlug1/set', '/EversunTest/smartPlug2/set', '/EversunTest/smartPlug3/set']
 
 client.on('connect', () => {
   console.log('Connected')
