@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { Typography, CardContent, Card, TextField } from "@mui/material";
+import { Typography, CardContent, Card, TextField, IconButton } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
 
 export default function SelectionCard(props) {
@@ -21,7 +21,9 @@ export default function SelectionCard(props) {
           value={props.newTopic}
           onChange={(e) => props.setNewTopic(e.target.value)}
         />
-        <SendIcon onClick={props.handleAddTopic} />
+        <IconButton onClick={props.handleAddTopic}>
+            <SendIcon  />
+        </IconButton>
       </CardContent>
     </Card>
   );

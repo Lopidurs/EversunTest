@@ -34,15 +34,21 @@ function App() {
     if (newTopic && !selectedDevices.includes(newTopic)) {
       setSelectedDevices([...selectedDevices, newTopic]);
       setNewTopic("");
+    }
   }
-}
+
+  const onClose = (topic) => {
+    setSelectedDevices(selectedDevices => 
+      selectedDevices.filter(selectedTopic  => selectedTopic  !== topic)
+    )
+  }
 
   return (
     <>
       <h1>Eversun</h1>
       <SelectionCard newTopic={newTopic} setNewTopic={setNewTopic} handleAddTopic={handleAddTopic}/>
       {selectedDevices.map(topic => (
-        <DeviceCard key={topic} {...devices[topic]} topic={topic} />
+        <DeviceCard key={topic} {...devices[topic]} topic={topic} onClose={onClose} />
       ))}
     </>
   )

@@ -1,6 +1,7 @@
 /* eslint-disable react/prop-types */
 import { useState, useEffect } from "react";
-import { Grid, Typography, Switch, CardContent, Card } from "@mui/material";
+import { Grid, Typography, Switch, CardContent, Card, IconButton } from "@mui/material";
+import CloseIcon from '@mui/icons-material/Close';
 import axios from "axios";
 
 export default function DeviceCard(props) {
@@ -33,7 +34,14 @@ export default function DeviceCard(props) {
   };
 
   return (
-    <Card sx={{ width: 500, margin: 2 }}>
+    <Card sx={{ width: 500, margin: 2, position: 'relative' }}>
+       <IconButton
+        aria-label="close"
+        onClick={() => props.onClose(deviceData.topic)}
+        sx={{ position: 'absolute', top: 8, right: 8 }}
+      >
+        <CloseIcon />
+      </IconButton>
       <CardContent>
         <Grid container alignItems="center">
           <Grid item xs={10}>
