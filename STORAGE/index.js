@@ -36,12 +36,12 @@ io.on('connection', (socket) => {
     if (!data) {
       console.log('No device found');
     } else {
-      const device = new Device({
-        topic: data.topic,
-        deviceName: data.deviceName,
-        currentPower: data.currentPower,
-        totalPowerConsumption: data.totalPowerConsumption,
-        state: data.state
+          const device = {
+            topic: data.topic,
+            deviceName: data.deviceName,
+            currentPower: data.currentPower,
+            totalPowerConsumption: data.totalPowerConsumption,
+            state: data.state
       });
       io.emit('message', device);
     }
