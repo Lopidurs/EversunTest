@@ -32,20 +32,34 @@ app.use(bodyParser.json());
 
 io.on('connection', (socket) => {
   console.log('A user connected');
-  Device.findOne({ deviceName: 'smartPlug1' }).sort({timestamp: -1 }).then((data) => {
-    if (!data) {
-      console.log('No device found');
-    } else {
-          const device = {
-            topic: data.topic,
-            deviceName: data.deviceName,
-            currentPower: data.currentPower,
-            totalPowerConsumption: data.totalPowerConsumption,
-            state: data.state
-      });
-      io.emit('message', device);
+
+  Device.aggregate([
+    {
+      $sort: { timestamp: -1 } 
+    },
+    {
+      $group: {
+        _id: "$topic",
+        doc: { $first: "$$ROOT" } 
+      }
     }
-  }).catch((err) => console.log(err))
+  ]).then((result) => {
+    if (result.length === 0) {
+      console.log('No devices found');
+    } else {
+      result.forEach(({ doc }) => {
+        const device = {
+          topic: doc.topic,
+          deviceName: doc.deviceName,
+          currentPower: doc.currentPower,
+          totalPowerConsumption: doc.totalPowerConsumption,
+          state: doc.state
+        };
+        io.emit('message', device);
+      });
+    }
+  }).catch((err) => console.log(err));
+
 
 
   socket.on('disconnect', () => {

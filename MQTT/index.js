@@ -16,13 +16,13 @@ const client = mqtt.connect(connectUrl, {
   reconnectPeriod: 1000,
 })
 
-const topic = '/EversunTest/smartPlug1'
+const topics = ['/EversunTest/smartPlug1', '/EversunTest/smartPlug2', '/EversunTest/smartPlug3']
 
 client.on('connect', () => {
   console.log('Connected')
 
-  client.subscribe([topic], () => {
-    console.log(`Subscribe to topic '${topic}'`)
+  client.subscribe(topics, () => {
+    console.log(`Subscribed to topics: ${topics.join(', ')}`)
   })
 })
 
