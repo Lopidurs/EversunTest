@@ -5,7 +5,9 @@ const bodyParser = require('body-parser');
 const { Server } = require('socket.io');
 const cors = require('cors');
 
-mongoose.connect('mongodb://localhost:27017/eversun', {});
+const mongoUrl = process.env.MONGO_URL || 'mongodb://localhost:27017/eversun';
+
+mongoose.connect(mongoUrl, {});
 
 const deviceSchema = new mongoose.Schema({
   topic: String,
